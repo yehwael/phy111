@@ -142,6 +142,11 @@
                     <button id="admin-nav-btn" onclick="openAdminDashboard()" class="hidden p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30" title="Class Dashboard (Admin Only)">
                         <i class="fa-solid fa-shield-halved"></i>
                     </button>
+
+                    <!-- NEW: separate MCQ results panel (Admin only) -->
+                    <button id="mcq-admin-btn" onclick="openMcqAdmin()" class="hidden px-3 py-2.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 border border-sky-500/30 text-xs font-bold items-center gap-1.5" title="MCQ Results (Admin Only)">
+                        <i class="fa-solid fa-list-check"></i> <span class="hidden sm:inline">MCQ Results</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -834,6 +839,49 @@
         </div>
     </div>
 
+    <!-- NEW: SEPARATE MCQ RESULTS MODAL (Admin only) -->
+    <div id="mcq-admin-modal" class="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/90 backdrop-blur-md hidden items-start justify-center p-2 md:p-3 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-5 max-w-6xl w-full shadow-2xl my-2 relative">
+            <button onclick="closeMcqAdmin()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-3 pb-3 border-b border-slate-200 dark:border-slate-800 pr-8">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-lg text-xs font-bold border border-sky-500/20">SECTION 1 ONLY</span>
+                        <h2 class="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white">MCQ Results (out of 30)</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Every student who submitted Section 1, whether or not they finished the written part.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="pullMcqAdmin(true)" class="px-3 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl flex items-center gap-2"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                    <button onclick="exportMcqCsv()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center gap-2"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                <div class="bg-sky-500/5 p-3 rounded-xl border border-sky-500/30"><span class="text-xs text-sky-600 dark:text-sky-400 uppercase font-bold">Students finished MCQ</span><div id="mcqa-students" class="text-2xl font-black text-sky-500 mt-1">0</div></div>
+                <div class="bg-sky-500/5 p-3 rounded-xl border border-sky-500/30"><span class="text-xs text-sky-600 dark:text-sky-400 uppercase font-bold">MCQ submissions</span><div id="mcqa-count" class="text-2xl font-black text-sky-500 mt-1">0</div></div>
+                <div class="bg-sky-500/5 p-3 rounded-xl border border-sky-500/30"><span class="text-xs text-sky-600 dark:text-sky-400 uppercase font-bold">Average MCQ</span><div id="mcqa-avg" class="text-2xl font-black text-sky-500 mt-1">0.0 / 30</div></div>
+                <div class="bg-sky-500/5 p-3 rounded-xl border border-sky-500/30"><span class="text-xs text-sky-600 dark:text-sky-400 uppercase font-bold">Highest MCQ</span><div id="mcqa-high" class="text-2xl font-black text-sky-500 mt-1">0 / 30</div></div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                <div class="relative flex-grow">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="mcqa-search" onkeyup="renderMcqAdmin()" placeholder="Search by Student ID..." class="w-full pl-9 pr-4 py-2.5 text-xs md:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <select id="mcqa-exam" onchange="renderMcqAdmin()" class="px-3 py-2.5 text-xs md:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white">
+                    <option value="">All exams</option>
+                </select>
+            </div>
+            <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-[55vh] overflow-y-auto">
+                <table class="w-full text-left border-collapse text-xs md:text-sm">
+                    <thead class="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
+                        <tr><th class="p-3">#</th><th class="p-3">Student ID</th><th class="p-3">Exam</th><th class="p-3">MCQ (30)</th><th class="p-3">Percentage</th><th class="p-3">Submitted at</th></tr>
+                    </thead>
+                    <tbody id="mcqa-tbody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="mt-12 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500">
         <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -1256,9 +1304,12 @@
             if (!SHEET_URL || window._flushing) return;
             window._flushing = true;
             try {
-                let q = JSON.parse(localStorage.getItem('phy111_outbox') || '[]');
-                while (q.length) {
+                // re-read the outbox on every pass: items added while a send is in flight must not be overwritten
+                while (true) {
+                    let q = JSON.parse(localStorage.getItem('phy111_outbox') || '[]');
+                    if (!q.length) break;
                     await fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(q[0]) });
+                    q = JSON.parse(localStorage.getItem('phy111_outbox') || '[]');
                     q.shift(); localStorage.setItem('phy111_outbox', JSON.stringify(q));
                 }
             } catch (e) {}
@@ -1390,6 +1441,7 @@
                 document.getElementById('progress-id-label').textContent = `#${currentUser}`;
 
                 adminNavBtn.classList.toggle('hidden', !(currentUser === ADMIN_ID && isAdminLoggedIn));
+                { const mb = document.getElementById('mcq-admin-btn'); if (mb) { const on = currentUser === ADMIN_ID && isAdminLoggedIn; mb.classList.toggle('hidden', !on); mb.classList.toggle('flex', on); } }
                 // Students are locked to the ID they first used on this browser; only the instructor can log out
                 document.getElementById('logout-btn').classList.toggle('hidden', !(currentUser === ADMIN_ID && isAdminLoggedIn));
             }
@@ -1979,6 +2031,106 @@ function updateMyPerformanceTable() {
                 toast.classList.add('opacity-0', '-translate-y-2');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+    </script>
+
+    <!-- ADD-ON: MCQ backfill (student side) + separate MCQ results panel (admin side). Does not modify any existing function. -->
+    <script>
+        // ---------- Student side: on every page load, resend ALL saved MCQ results from this browser ----------
+        function collectSavedMcq() {
+            const out = {};
+            if (!currentUser) return [];
+            const put = (examId, title, mcq, ts) => {
+                if (mcq === undefined || mcq === null || isNaN(Number(mcq))) return;
+                out[examId] = { examId: examId, examTitle: title, score: Number(mcq), totalMarks: 30, percentage: Math.round(Number(mcq) / 30 * 100), timestamp: ts || '' };
+            };
+            // 1) full exam attempts (they carry mcqScore)
+            try { JSON.parse(localStorage.getItem(`phy111_history_${currentUser}`) || '[]').reverse().forEach(r => put(r.examId, r.examTitle, r.mcqScore, r.timestamp)); } catch (e) {}
+            // 2) MCQ-only history (saved right after Section 1 submit) - newest wins
+            try { JSON.parse(localStorage.getItem(`phy111_mcq_history_${currentUser}`) || '[]').reverse().forEach(r => put(r.examId, r.examTitle, r.mcq, r.timestamp)); } catch (e) {}
+            // 3) Exam 1 questions are unchanged, so a submitted MCQ saved only in progress can be re-scored safely
+            try {
+                const d = JSON.parse(localStorage.getItem(`phy111_progress_${currentUser}_exam_0`) || '{}');
+                const ex = EXAMS_DATABASE[0];
+                if (d.mcqDone && d.answers && !out[ex.id]) put(ex.id, ex.title, ex.mcqs.reduce((s, q, i) => s + (d.answers[i] === q.answer ? 2 : 0), 0), d.lastUpdated ? new Date(d.lastUpdated).toLocaleString() : '');
+            } catch (e) {}
+            return Object.values(out);
+        }
+        function backfillMcqToCloud() {
+            try {
+                if (!currentUser || currentUser === ADMIN_ID) return;
+                const items = collectSavedMcq();
+                if (items.length) cloudSend('mcq_backfill', { items: items });
+            } catch (e) {}
+        }
+        window.addEventListener('load', () => setTimeout(backfillMcqToCloud, 1500));
+
+        // ---------- Admin side: separate MCQ results panel ----------
+        let mcqAdminRows = [];
+        function mcqEsc(s) { return String(s === undefined || s === null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+        function openMcqAdmin() {
+            if (currentUser !== ADMIN_ID || !isAdminLoggedIn) { showToast("Access Restricted: Instructor Admin Login Required!", "error"); return; }
+            if (!adminKey) { adminKey = prompt('Admin password:') || ''; if (adminKey) localStorage.setItem('phy111_admin_key', adminKey); }
+            const m = document.getElementById('mcq-admin-modal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            try { mcqAdminRows = JSON.parse(localStorage.getItem('phy111_admin_mcq') || '[]'); } catch (e) { mcqAdminRows = []; }
+            renderMcqAdmin();
+            pullMcqAdmin(false);
+        }
+        function closeMcqAdmin() {
+            const m = document.getElementById('mcq-admin-modal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+        async function pullMcqAdmin(manual) {
+            if (!SHEET_URL) return;
+            try {
+                const r = await fetch(SHEET_URL + '?action=mcq&id=' + ADMIN_ID + '&key=' + encodeURIComponent(adminKey));
+                const d = await r.json();
+                if (d && d.error) { adminKey = ''; localStorage.removeItem('phy111_admin_key'); showToast('Wrong admin password, or the Apps Script was not redeployed as a New version', 'error'); return; }
+                if (d && d.mcq) {
+                    mcqAdminRows = d.mcq;
+                    localStorage.setItem('phy111_admin_mcq', JSON.stringify(mcqAdminRows));
+                    renderMcqAdmin();
+                    if (manual) showToast('MCQ results refreshed from Google Sheet', 'success');
+                }
+            } catch (e) { showToast('Could not reach Google Sheet (showing last saved data)', 'error'); }
+        }
+        function renderMcqAdmin() {
+            const tb = document.getElementById('mcqa-tbody'); if (!tb) return;
+            const sel = document.getElementById('mcqa-exam');
+            const q = (document.getElementById('mcqa-search').value || '').trim().toLowerCase();
+            // rebuild exam filter (keeps the current choice)
+            const cur = sel.value;
+            const titles = Array.from(new Set(mcqAdminRows.map(r => r.examTitle))).sort();
+            sel.innerHTML = '<option value="">All exams</option>' + titles.map(t => `<option value="${mcqEsc(t)}">${mcqEsc(t)}</option>`).join('');
+            sel.value = titles.includes(cur) ? cur : '';
+            const rows = mcqAdminRows.filter(r => (!sel.value || r.examTitle === sel.value) && (!q || String(r.studentId).toLowerCase().includes(q)));
+            tb.innerHTML = rows.length ? rows.map((r, i) => {
+                const pc = Number(r.percentage) || 0;
+                const t = new Date(r.time); const when = isNaN(t) ? mcqEsc(r.time) : t.toLocaleString();
+                return `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <td class="p-3 text-slate-400">${i + 1}</td>
+                    <td class="p-3 code-font font-bold text-sky-600 dark:text-sky-400">#${mcqEsc(r.studentId)}</td>
+                    <td class="p-3 font-medium text-slate-900 dark:text-white">${mcqEsc(r.examTitle)}</td>
+                    <td class="p-3 font-bold code-font">${mcqEsc(r.mcq)} / 30</td>
+                    <td class="p-3 font-bold ${pc >= 60 ? 'text-emerald-500' : 'text-rose-500'}">${pc}%</td>
+                    <td class="p-3 text-slate-500 dark:text-slate-400">${when}</td></tr>`;
+            }).join('') : `<tr><td colspan="6" class="p-4 text-center text-slate-400">No MCQ results yet.</td></tr>`;
+            const nums = rows.map(r => Number(r.mcq) || 0);
+            document.getElementById('mcqa-students').textContent = new Set(rows.map(r => String(r.studentId))).size;
+            document.getElementById('mcqa-count').textContent = rows.length;
+            document.getElementById('mcqa-avg').textContent = (nums.length ? (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1) : '0.0') + ' / 30';
+            document.getElementById('mcqa-high').textContent = (nums.length ? Math.max.apply(null, nums) : 0) + ' / 30';
+        }
+        function exportMcqCsv() {
+            if (!mcqAdminRows.length) { showToast('No MCQ data to export!', 'error'); return; }
+            let csv = 'Student ID,Exam,MCQ (30),Percentage,Submitted at\n';
+            mcqAdminRows.forEach(r => { csv += `"${r.studentId}","${String(r.examTitle).replace(/"/g, '""')}",${r.mcq},${r.percentage}%,"${r.time}"\n`; });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+            a.download = `PHY111_MCQ_Results_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
     </script>
 </body>
