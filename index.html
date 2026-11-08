@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics (PHY 111) Master Portal & Exams Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <!-- MathJax for TeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        html.dark ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        html.dark ::-webkit-scrollbar-thumb { background: #334155; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- 1. STUDENT LOGIN GATE MODAL -->
+    <div id="login-modal" class="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl relative">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-sky-500/20 text-2xl">
+                    <i class="fa-solid fa-atom"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">PHY 111 Midterm</h2>
+                <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">Physics 1</p>
+            </div>
+
+            <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+                <div>
+                    <label for="student-id-input" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2">
+                        Student ID
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-id-card"></i>
+                        </span>
+                        <input type="text" id="student-id-input" maxlength="9" placeholder="120260XXX" oninput="checkAdminIdTrigger()"
+                            class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white code-font text-lg font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none transition-all">
+                    </div>
+                    <p id="login-error" class="text-rose-500 text-xs mt-1.5 hidden flex items-center gap-1">
+                        <i class="fa-solid fa-circle-exclamation"></i> ID must be exactly 9 digits (0-9).
+                    </p>
+                </div>
+
+                <!-- Admin Password Field (Triggered ONLY for ID 120250615) -->
+                <div id="admin-password-container" class="hidden transition-all duration-300">
+                    <label for="admin-password-input" class="block text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                        <span>Admin Access Password</span>
+                        <span class="text-[10px] font-normal text-slate-400">(Required for ID 120250615)</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-500">
+                            <i class="fa-solid fa-key"></i>
+                        </span>
+                        <input type="password" id="admin-password-input" placeholder="Enter Admin Password" 
+                            class="w-full pl-10 pr-4 py-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/40 rounded-xl text-slate-900 dark:text-white code-font text-base font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                    <p id="admin-password-error" class="text-rose-500 text-xs mt-1.5 hidden flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Incorrect password for Admin account!
+                    </p>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-semibold rounded-xl shadow-lg shadow-sky-600/30 transition-all flex items-center justify-center gap-2">
+                    <span>Enter Revision Portal</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MAIN HEADER & NAVBAR -->
+    <header class="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center text-white text-lg font-bold shadow-md shadow-sky-600/20">
+                        <i class="fa-solid fa-atom"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 dark:text-white text-base md:text-lg leading-none">PHY 111 Master Revision</h1>
+                        <span class="text-[10px] md:text-xs text-sky-600 dark:text-sky-400 font-medium tracking-wide">PHYSICS 1 COMPREHENSIVE HUB</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div id="user-badge" class="hidden items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <i class="fa-solid fa-user-graduate text-sky-500 text-xs"></i>
+                        <span class="text-xs md:text-sm font-bold code-font text-slate-800 dark:text-slate-200" id="header-student-id">#120260XXX</span>
+                        <button onclick="logoutStudent()" title="Logout / Switch Account" class="text-slate-400 hover:text-rose-500 ml-1 text-xs">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+
+                    <button id="theme-toggle-btn" onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border border-slate-200 dark:border-slate-700">
+                        <i id="theme-icon" class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <!-- Instructor Admin Button (Only visible for Admin ID 120250615) -->
+                    <button id="admin-nav-btn" onclick="openAdminDashboard()" class="hidden p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30" title="Class Dashboard (Admin Only)">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar Tabs -->
+        <div class="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 overflow-x-auto">
+            <div class="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 py-2 text-xs md:text-sm min-w-max">
+                <button onclick="switchTab('lectures')" class="nav-tab px-4 py-2 rounded-lg font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 flex items-center gap-2" id="tab-lectures">
+                    <i class="fa-solid fa-book-open text-sky-500"></i> Lectures 1–4 Summary
+                </button>
+                <button onclick="switchTab('definitions')" class="nav-tab px-4 py-2 rounded-lg font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 flex items-center gap-2" id="tab-definitions">
+                    <i class="fa-solid fa-spell-check text-purple-500"></i> Master Definitions & Units
+                </button>
+                <button onclick="switchTab('formulas')" class="nav-tab px-4 py-2 rounded-lg font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 flex items-center gap-2" id="tab-formulas">
+                    <i class="fa-solid fa-square-root-variable text-emerald-500"></i> Formula Matrix & Solvers
+                </button>
+                <button onclick="switchTab('strategies')" class="nav-tab px-4 py-2 rounded-lg font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 flex items-center gap-2" id="tab-strategies">
+                    <i class="fa-solid fa-chess text-amber-500"></i> Sheet Problem Strategies
+                </button>
+                <button onclick="switchTab('exams')" class="nav-tab px-4 py-2 rounded-lg font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 flex items-center gap-2" id="tab-exams">
+                    <i class="fa-solid fa-pen-to-square text-rose-500"></i> 10 Mock Exams (90 Marks)
+                </button>
+                <button onclick="switchTab('my-performance')" class="nav-tab px-4 py-2 rounded-lg font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 flex items-center gap-2" id="tab-my-performance">
+                    <i class="fa-solid fa-chart-line text-cyan-500"></i> My Performance
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- TAB 1: LECTURES 1-4 SUMMARIES -->
+        <section id="content-lectures" class="tab-content space-y-8">
+            <div class="bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-700 text-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-book-open"></i> Lectures 1 to 4 Full Conceptual Breakdown
+                </h2>
+                <p class="text-sky-100 text-sm mt-1">Detailed review of Dimensions, Kinematics, Forces, Energy Conservation, and Rotational Dynamics.</p>
+            </div>
+
+            <!-- Lecture 1 -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+                    <span class="px-3 py-1 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-lg font-bold text-xs">LECTURE 1</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Units, Dimensional Analysis & 1D Kinematics</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6 text-sm text-slate-700 dark:text-slate-300">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-sky-600 dark:text-sky-400">1. Base Quantities & Dimensional Homogeneity</h4>
+                        <p class="leading-relaxed">Physical quantities are classified into <strong>Base Quantities</strong> (Mass $[M]$, Length $[L]$, Time $[T]$) and <strong>Derived Quantities</strong> (Speed $[L T^{-1}]$, Acceleration $[L T^{-2}]$, Force $[M L T^{-2}]$, Energy $[M L^2 T^{-2}]$).</p>
+                        <p class="leading-relaxed"><strong>Dimensional Homogeneity Rule:</strong> Any physical equation is valid ONLY if both sides have identical base dimensions. Terms can only be added or subtracted if they share identical units.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-sky-600 dark:text-sky-400">2. Calculus-Based & Uniform 1D Kinematics</h4>
+                        <p class="leading-relaxed">Instantaneous velocity $v_x = \frac{dx}{dt}$ and acceleration $a_x = \frac{dv_x}{dt} = \frac{d^2x}{dt^2}$.</p>
+                        <p class="leading-relaxed">For <strong>Constant Acceleration ($a_x = \text{const}$):</strong></p>
+                        <ul class="list-disc list-inside space-y-1 font-mono text-xs bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <li>$v_x = v_{0x} + a_x t$</li>
+                            <li>$x - x_0 = v_{0x} t + \frac{1}{2} a_x t^2$</li>
+                            <li>$v_x^2 = v_{0x}^2 + 2 a_x (x - x_0)$</li>
+                            <li>Free Fall: $a_y = -g = -9.8\text{ m/s}^2$</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecture 2 -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+                    <span class="px-3 py-1 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg font-bold text-xs">LECTURE 2</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Friction, Mechanical Work & Work-Energy Theorem</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6 text-sm text-slate-700 dark:text-slate-300">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400">1. Friction Laws & Contact Forces</h4>
+                        <p class="leading-relaxed">Contact forces split into Normal Force ($N$) perpendicular to contact, and Friction ($f$) parallel to contact. Static friction prevents sliding ($f_s \le \mu_s N$), reaching maximum $(f_s)_{max} = \mu_s N$. Kinetic sliding friction is constant: $f_k = \mu_k N$.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400">2. Dot Product Work & Kinetic Energy Theorem</h4>
+                        <p class="leading-relaxed">Work $W = \vec{F} \cdot \vec{d} = F d \cos\phi$. Spring work (Hooke's Law $F = -kx$): $W_s = \frac{1}{2} k x_1^2 - \frac{1}{2} k x_2^2$.</p>
+                        <p class="leading-relaxed font-semibold text-purple-500">Work-Energy Theorem: $W_{total} = \Delta K = \frac{1}{2} m v_f^2 - \frac{1}{2} m v_i^2$.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecture 3 -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+                    <span class="px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg font-bold text-xs">LECTURE 3</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Potential Energy & Conservation of Mechanical Energy</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6 text-sm text-slate-700 dark:text-slate-300">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-emerald-600 dark:text-emerald-400">1. Conservative vs Non-Conservative Forces</h4>
+                        <p class="leading-relaxed"><strong>Conservative Forces:</strong> Work is path-independent and equals zero over closed loops ($\oint \vec{F} \cdot d\vec{s} = 0$). Work directly equals potential energy drop: $W_{cons} = -\Delta U$.</p>
+                        <p class="leading-relaxed"><strong>Non-Conservative Forces:</strong> Work depends on path (e.g., Friction) and converts mechanical energy into internal thermal energy ($\Delta U_{int} = f_k d$).</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-emerald-600 dark:text-emerald-400">2. Mechanical Energy Equations</h4>
+                        <p class="leading-relaxed">Total Mechanical Energy $E = K + U$.</p>
+                        <ul class="list-disc list-inside space-y-1 font-mono text-xs bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <li>Conservative System: $K_1 + U_1 = K_2 + U_2$</li>
+                            <li>System with Friction & External Work: $K_1 + U_1 + W_{other} = K_2 + U_2$</li>
+                            <li>Gravitational Potential: $U_g = mgy$</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lecture 4 -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+                    <span class="px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg font-bold text-xs">LECTURE 4</span>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Rotational Motion, Torque & Moment of Inertia</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6 text-sm text-slate-700 dark:text-slate-300">
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-amber-600 dark:text-amber-400">1. Linear to Rotational Relationships</h4>
+                        <p class="leading-relaxed">Angular position $\theta$, velocity $\omega = \frac{d\theta}{dt}$, acceleration $\alpha = \frac{d\omega}{dt}$. Linear equivalents: arc distance $s = r\theta$, tangential speed $v = r\omega$, tangential acceleration $a_t = r\alpha$, centripetal acceleration $a_r = \omega^2 r$. Total acceleration $a = \sqrt{a_t^2 + a_r^2}$.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="font-bold text-amber-600 dark:text-amber-400">2. Torque, Moment of Inertia & Energy</h4>
+                        <p class="leading-relaxed">Torque $\tau = r F \sin\phi$. Rotational Newton's 2nd Law: $\sum \tau = I \alpha$.</p>
+                        <p class="leading-relaxed font-mono text-xs">Moment of Inertia $I = \sum m_i r_i^2$. Parallel-Axis Theorem: $I = I_{CM} + M h^2$. Rotational Kinetic Energy $K_{rot} = \frac{1}{2} I \omega^2$. Rotational Power $P = \tau \omega$.</p>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Add-ons: missing lecture topics + quick solvers -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Extra Lecture Points (from the slides)</h3>
+                <div class="grid md:grid-cols-2 gap-6 text-sm text-slate-700 dark:text-slate-300">
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Power (Lec 3):</strong> $P_{av} = \frac{\Delta W}{\Delta t}$, $P = \vec{F}\cdot\vec{v}$, $1\text{ hp} = 746\text{ W}$.</li>
+                        <li><strong>Gravity work:</strong> $W_{grav} = -\Delta U_{grav} = mg(y_1-y_2)$ (positive going down).</li>
+                        <li><strong>Other forces:</strong> $W_{other}>0 \Rightarrow E\uparrow$, $W_{other}<0 \Rightarrow E\downarrow$, $0 \Rightarrow E$ constant.</li>
+                        <li><strong>Trap:</strong> the launch angle never enters an energy-conservation speed calculation (only $|v|$ and height).</li>
+                    </ul>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Constant $\alpha$:</strong> $\omega=\omega_0+\alpha t$, $\theta=\omega_0 t+\tfrac12\alpha t^2$, $\omega^2=\omega_0^2+2\alpha\theta$.</li>
+                        <li><strong>Point on rim:</strong> $a=r\sqrt{\alpha^2+\omega^4}$ (always use radians).</li>
+                        <li><strong>$I$ table:</strong> rod center $\frac{1}{12}ML^2$, rod end $\frac13 ML^2$, solid cylinder $\frac12 MR^2$, hollow cylinder $MR^2$, solid sphere $\frac25 MR^2$, thin shell $\frac23 MR^2$.</li>
+                        <li><strong>Torque is N·m but NOT joule;</strong> $1\text{ rpm}=\frac{2\pi}{60}\text{ rad/s}$.</li>
+                    </ul>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+                        <p class="font-bold">Power: F·v</p>
+                        <input id="ad-F" oninput="calcAddon()" type="number" placeholder="F (N)" class="w-full p-2 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                        <input id="ad-v" oninput="calcAddon()" type="number" placeholder="v (m/s)" class="w-full p-2 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                        <p id="ad-P" class="font-bold text-emerald-500">—</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+                        <p class="font-bold">Spring work &amp; energy</p>
+                        <input id="ad-k" oninput="calcAddon()" type="number" placeholder="k (N/m)" class="w-full p-2 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                        <input id="ad-x" oninput="calcAddon()" type="number" placeholder="x (m)" class="w-full p-2 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                        <p id="ad-W" class="font-bold text-emerald-500">—</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+                        <p class="font-bold">Rotation (constant α)</p>
+                        <input id="ad-w0" oninput="calcAddon()" type="number" placeholder="ω₀ (rad/s)" class="w-full p-2 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                        <input id="ad-al" oninput="calcAddon()" type="number" placeholder="α (rad/s²)" class="w-full p-2 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                        <input id="ad-t" oninput="calcAddon()" type="number" placeholder="t (s)" class="w-full p-2 rounded bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                        <p id="ad-R" class="font-bold text-emerald-500">—</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: MASTER DEFINITIONS SHEET -->
+        <section id="content-definitions" class="tab-content space-y-6 hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-spell-check"></i> Master Definitions & Physical Standards Sheet
+                    </h2>
+                    <p class="text-purple-100 text-sm mt-1">Complete glossary of core terms, base dimensions $[M L T]$, and SI units across Lectures 1-4.</p>
+                </div>
+                <div class="w-full md:w-72">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="def-search-input" onkeyup="filterDefinitions()" placeholder="Search terms (e.g., Torque, Work)..." 
+                            class="w-full pl-9 pr-4 py-2 bg-white/10 text-white placeholder-purple-200 border border-white/20 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-white/40 backdrop-blur-md">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="def-cards-container">
+                <!-- Definition Cards -->
+                <div class="def-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-sky-600 dark:text-sky-400 text-base">Base Quantity</h4>
+                        <span class="px-2 py-0.5 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded text-[10px] font-bold font-mono">Lec 1</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">A physical quantity defined by direct experimental measurement standard (e.g., Mass $[M]$, Length $[L]$, Time $[T]$).</p>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex justify-between">
+                        <span>SI Standard: kg, m, s</span>
+                        <span>Dim: $[M], [L], [T]$</span>
+                    </div>
+                </div>
+
+                <div class="def-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-sky-600 dark:text-sky-400 text-base">Dimensional Homogeneity</h4>
+                        <span class="px-2 py-0.5 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded text-[10px] font-bold font-mono">Lec 1</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">The physical requirement that both sides of any valid physical equation must possess identical base dimensions.</p>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex justify-between">
+                        <span>Rule: $[LHS] = [RHS]$</span>
+                        <span>Additive Consistency</span>
+                    </div>
+                </div>
+
+                <div class="def-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400 text-base">Kinetic Friction ($f_k$)</h4>
+                        <span class="px-2 py-0.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded text-[10px] font-bold font-mono">Lec 2</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Resistive contact force acting parallel to surfaces opposing active sliding motion: $f_k = \mu_k N$.</p>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex justify-between">
+                        <span>SI Unit: N (Newton)</span>
+                        <span>Dim: $[M L T^{-2}]$</span>
+                    </div>
+                </div>
+
+                <div class="def-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-purple-600 dark:text-purple-400 text-base">Work-Energy Theorem</h4>
+                        <span class="px-2 py-0.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded text-[10px] font-bold font-mono">Lec 2</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Identity stating total net work done by all acting forces equals the change in kinetic energy: $W_{total} = \Delta K$.</p>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex justify-between">
+                        <span>SI Unit: J (Joule)</span>
+                        <span>Dim: $[M L^2 T^{-2}]$</span>
+                    </div>
+                </div>
+
+                <div class="def-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-emerald-600 dark:text-emerald-400 text-base">Conservative Force</h4>
+                        <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded text-[10px] font-bold font-mono">Lec 3</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">A force whose work is path-independent, depends only on endpoints, and equals zero over closed loops ($\oint \vec{F} \cdot d\vec{s} = 0$).</p>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex justify-between">
+                        <span>Property: $W_{cons} = -\Delta U$</span>
+                        <span>Ex: Gravity, Springs</span>
+                    </div>
+                </div>
+
+                <div class="def-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-amber-600 dark:text-amber-400 text-base">Torque ($\tau$)</h4>
+                        <span class="px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded text-[10px] font-bold font-mono">Lec 4</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Quantitative measure of a force's capability to alter rotational motion about a pivot axis: $\tau = r F \sin\phi$.</p>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex justify-between">
+                        <span>SI Unit: N·m</span>
+                        <span>Dim: $[M L^2 T^{-2}]$</span>
+                    </div>
+                </div>
+
+                <div class="def-card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-amber-600 dark:text-amber-400 text-base">Moment of Inertia ($I$)</h4>
+                        <span class="px-2 py-0.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded text-[10px] font-bold font-mono">Lec 4</span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Rotational inertia representing resistance to changes in angular speed: $I = \sum m_i r_i^2 = \int r^2 dm$.</p>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono text-slate-400 flex justify-between">
+                        <span>SI Unit: kg·m²</span>
+                        <span>Dim: $[M L^2]$</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: FORMULA MATRIX & INTERACTIVE SOLVERS -->
+        <section id="content-formulas" class="tab-content space-y-8 hidden">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-square-root-variable"></i> Master Formula Matrix & Interactive Solvers
+                </h2>
+                <p class="text-emerald-100 text-sm mt-1">Structured formula tables and interactive problem calculators for PHY 111.</p>
+            </div>
+
+            <!-- Solvers Grid -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Solver 1: Projectile Motion Calculator -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-4">
+                    <h3 class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-calculator"></i> Projectile Motion Interactive Calculator
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Initial Velocity $v_0$ (m/s)</label>
+                            <input type="number" id="calc-v0" value="25" oninput="calculateProjectile()" class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-mono font-bold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Launch Angle $\theta$ (&deg;)</label>
+                            <input type="number" id="calc-angle" value="35" oninput="calculateProjectile()" class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-mono font-bold">
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Max Range (R)</span>
+                            <span id="res-R" class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">59.93 m</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Max Height (H)</span>
+                            <span id="res-H" class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">10.49 m</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Flight Time (T)</span>
+                            <span id="res-T" class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">2.93 s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Solver 2: Inclined Plane Dynamics Solver -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-4">
+                    <h3 class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-calculator"></i> Inclined Plane Dynamics Solver
+                    </h3>
+                    <div class="grid grid-cols-3 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Mass $m$ (kg)</label>
+                            <input type="number" id="calc-m" value="10" oninput="calculateIncline()" class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-mono font-bold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Angle $\theta$ (&deg;)</label>
+                            <input type="number" id="calc-inc-angle" value="30" oninput="calculateIncline()" class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-mono font-bold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Friction $\mu_k$</label>
+                            <input type="number" step="0.05" id="calc-muk" value="0.2" oninput="calculateIncline()" class="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white font-mono font-bold">
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Normal Force (N)</span>
+                            <span id="res-N" class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">84.87 N</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Friction ($f_k$)</span>
+                            <span id="res-fk" class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">16.97 N</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px]">Accel ($a$)</span>
+                            <span id="res-acc" class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">3.20 m/s²</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Formula Matrix Table -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white">
+                    Unified Formula Matrix Across All Lectures
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs md:text-sm">
+                        <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                            <tr>
+                                <th class="p-3">Topic</th>
+                                <th class="p-3">Equation</th>
+                                <th class="p-3">Variables Meaning</th>
+                                <th class="p-3">SI Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-mono">
+                            <tr>
+                                <td class="p-3 font-sans font-bold text-sky-600 dark:text-sky-400">1D Kinematics</td>
+                                <td class="p-3 text-sky-500 font-bold">$v_x^2 = v_{0x}^2 + 2a_x\Delta x$</td>
+                                <td class="p-3 text-slate-500 font-sans">$v_0$: initial velocity, $a_x$: constant acceleration</td>
+                                <td class="p-3">m/s</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-sans font-bold text-purple-600 dark:text-purple-400">Friction Force</td>
+                                <td class="p-3 text-purple-500 font-bold">$f_k = \mu_k N$</td>
+                                <td class="p-3 text-slate-500 font-sans">$\mu_k$: coefficient of kinetic friction, $N$: normal force</td>
+                                <td class="p-3">N (Newton)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-sans font-bold text-purple-600 dark:text-purple-400">Spring Work</td>
+                                <td class="p-3 text-purple-500 font-bold">$W_s = \frac{1}{2} k x_1^2 - \frac{1}{2} k x_2^2$</td>
+                                <td class="p-3 text-slate-500 font-sans">$k$: spring constant (N/m), $x$: displacement from equilibrium</td>
+                                <td class="p-3">J (Joule)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-sans font-bold text-emerald-600 dark:text-emerald-400">Energy Conservation</td>
+                                <td class="p-3 text-emerald-500 font-bold">$K_1 + U_1 + W_{other} = K_2 + U_2$</td>
+                                <td class="p-3 text-slate-500 font-sans font-sans">$W_{other}$: work done by friction or external thrust</td>
+                                <td class="p-3">J (Joule)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-sans font-bold text-amber-600 dark:text-amber-400">Torque Equilibrium</td>
+                                <td class="p-3 text-amber-500 font-bold font-bold">$\sum \tau = I \alpha$</td>
+                                <td class="p-3 text-slate-500 font-sans">$\tau$: torque ($r F \sin\phi$), $I$: rotational inertia, $\alpha$: angular accel</td>
+                                <td class="p-3">N·m</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: SHEET PROBLEM STRATEGIES GUIDE -->
+        <section id="content-strategies" class="tab-content space-y-6 hidden">
+            <div class="bg-gradient-to-r from-amber-600 to-orange-700 text-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-chess"></i> Sheets 1 to 4 Problem-Solving Methodologies
+                </h2>
+                <p class="text-amber-100 text-sm mt-1">Step-by-step analytical algorithms for solving exercises in Sheets 1, 2, 3, and 4.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Sheet 1 Strategy -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 bg-sky-500/10 text-sky-600 dark:text-sky-400 rounded-lg flex items-center justify-center font-bold text-xs">S1</span>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sheet 1: Dimensional Analysis & Calculus Motion</h3>
+                    </div>
+                    <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-2 list-disc list-inside">
+                        <li><strong>Dimensional Homogeneity Check:</strong> Substitute physical dimensions $[M, L, T]$. Ensure constant coefficients like $2\pi$ are treated as dimensionless $[1]$.</li>
+                        <li><strong>Calculus Turning Points:</strong> Given $x(t)$, differentiate once to get $v(t)$. Set $v(t) = 0$ to find the exact stopping time $t_{stop}$, then plug back into $x(t)$.</li>
+                    </ul>
+                </div>
+
+                <!-- Sheet 2 Strategy -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg flex items-center justify-center font-bold text-xs">S2</span>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sheet 2: Incline Friction & Spring Work</h3>
+                    </div>
+                    <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-2 list-disc list-inside">
+                        <li><strong>Free-Body Diagram (FBD) on Incline:</strong> Perpendicular force balance yields $N = mg \cos\theta$. Friction force is $f_k = \mu_k mg \cos\theta$.</li>
+                        <li><strong>Spring Compression Stopping Distance:</strong> Apply Work-Energy Theorem $W_{net} = \Delta K \implies -\frac{1}{2}kx^2 - f_k x = -\frac{1}{2}mv_i^2$.</li>
+                    </ul>
+                </div>
+
+                <!-- Sheet 3 Strategy -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg flex items-center justify-center font-bold text-xs">S3</span>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sheet 3: Energy Conservation & Roller Coasters</h3>
+                    </div>
+                    <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-2 list-disc list-inside">
+                        <li><strong>Pendulum Height Geometry:</strong> Height at angle $\theta$ relative to bottom point is $h = L(1 - \cos\theta)$. Equate $mgh = \frac{1}{2}mv^2$.</li>
+                        <li><strong>Thermal Dissipation:</strong> Total thermal energy generated by non-conservative friction is $\Delta U_{int} = f_k d = -\Delta E_{mech}$.</li>
+                    </ul>
+                </div>
+
+                <!-- Sheet 4 Strategy -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg flex items-center justify-center font-bold text-xs">S4</span>
+                        <h3 class="font-bold text-slate-900 dark:text-white text-base">Sheet 4: Rotational Dynamics & Mass-Pulley Systems</h3>
+                    </div>
+                    <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-2 list-disc list-inside">
+                        <li><strong>Coupled Linear-Rotational Systems:</strong> For falling mass $m$ attached to disk pulley $I$: Linear FBD $mg - T = ma$. Rotational FBD $T R = I \alpha$. Constraint $a = R \alpha \implies a = \frac{mg}{m + I/R^2}$.</li>
+                        <li><strong>Compound Moment of Inertia:</strong> $I_{total} = I_{rim} + N \cdot I_{spokes} = M_{rim} R^2 + N (\frac{1}{3} m_{spoke} L^2)$.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: 10 MASTER EXAMS (90 MARKS EACH) -->
+        <section id="content-exams" class="tab-content space-y-6 hidden">
+            <div class="bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> 10 Master Exams Dashboard (90 Marks Each)
+                    </h2>
+                    <p class="text-rose-100 text-sm mt-1">Structure: 15 MCQs (30 Marks) + 6 Written Problems with Detailed Step-by-Step Solutions (60 Marks).</p>
+                </div>
+            </div>
+
+            <!-- EXAM SELECTION DASHBOARD GRID -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                    <span>Select Exam to Attempt</span>
+                    <span class="text-xs font-normal text-slate-500">Saved under ID: <strong id="progress-id-label" class="code-font text-sky-600 dark:text-sky-400">#120260XXX</strong></span>
+                </h3>
+
+                <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3" id="exams-grid-cards">
+                    <!-- Dynamic Exam Progress Cards Rendered via JS -->
+                </div>
+            </div>
+
+            <!-- Active Exam Control Bar -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-wrap justify-between items-center gap-4 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <span id="active-exam-title" class="text-base md:text-lg font-extrabold text-slate-900 dark:text-white">Exam 1: Kinematics & Physics 1</span>
+                    <span class="px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-bold border border-rose-500/20">Total: 90 Marks</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="submitCurrentExam()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-600/30 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> Calculate Total Score & Submit
+                    </button>
+                </div>
+            </div>
+
+            <!-- Exam Questions Container -->
+            <div id="exam-questions-container" class="space-y-6">
+                <!-- Dynamically Rendered Questions -->
+            </div>
+        </section>
+
+        <!-- TAB 6: MY PERFORMANCE -->
+        <section id="content-my-performance" class="tab-content space-y-6 hidden">
+            <div class="bg-gradient-to-r from-cyan-600 to-blue-700 text-white p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line"></i> My Exam History & Statistics
+                </h2>
+                <p class="text-cyan-100 text-sm mt-1">Personal performance breakdown saved under your 9-digit Student ID.</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Exams Completed</span>
+                    <div class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1" id="stat-attempted">0</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Average Score</span>
+                    <div class="text-2xl font-extrabold text-cyan-600 dark:text-cyan-400 mt-1" id="stat-avg">0.0 / 90</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Highest Score</span>
+                    <div class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1" id="stat-high">0 / 90</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Average %</span>
+                    <div class="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1" id="stat-pct">0%</div>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white flex justify-between items-center">
+                    <span>Recorded Attempts History</span>
+                    <button onclick="clearMyHistory()" class="text-xs text-rose-500 hover:text-rose-600 font-semibold">Clear My Records</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs md:text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
+                                <th class="p-3">Exam Name</th>
+                                <th class="p-3">Score (90)</th>
+                                <th class="p-3">Percentage</th>
+                                <th class="p-3">Grade</th>
+                                <th class="p-3">Date & Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-history-tbody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 3. HIDDEN ADMIN GRADES DASHBOARD MODAL -->
+    <div id="admin-dashboard-modal" class="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 max-w-5xl w-full shadow-2xl my-8 relative">
+            <button onclick="closeAdminDashboard()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold border border-amber-500/20">INSTRUCTOR PORTAL</span>
+                        <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">Class Grades & Progress Dashboard</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Aggregated class records saved under student 9-digit IDs.</p>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="exportGradesToCSV()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/30 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv text-sm"></i> Export to CSV / Excel Sheet
+                    </button>
+                    <button onclick="clearAllGradesData()" class="px-3 py-2 bg-rose-500/10 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs rounded-xl transition-all" title="Reset Gradebook Database">
+                        <i class="fa-solid fa-trash"></i> Reset Database
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Overview Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                    <span class="text-xs text-slate-500 uppercase font-bold">Total Students</span>
+                    <div id="admin-stat-students" class="text-2xl font-black text-slate-900 dark:text-white mt-1">0</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                    <span class="text-xs text-slate-500 uppercase font-bold">Exams Attempted</span>
+                    <div id="admin-stat-exams" class="text-2xl font-black text-amber-500 mt-1">0</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                    <span class="text-xs text-slate-500 uppercase font-bold">Class Average</span>
+                    <div id="admin-stat-avg" class="text-2xl font-black text-sky-500 mt-1">0.0 / 90</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                    <span class="text-xs text-slate-500 uppercase font-bold">Pass Rate (&ge;60%)</span>
+                    <div id="admin-stat-pass" class="text-2xl font-black text-emerald-500 mt-1">0%</div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="admin-search-input" onkeyup="filterAdminTable()" placeholder="Search by Student ID or Exam Name..." 
+                           class="w-full pl-9 pr-4 py-2.5 text-xs md:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
+                <table class="w-full text-left border-collapse text-xs md:text-sm">
+                    <thead class="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
+                        <tr>
+                            <th class="p-3">Student ID</th>
+                            <th class="p-3">Exam Name</th>
+                            <th class="p-3">Score (Out of 90)</th>
+                            <th class="p-3">Percentage</th>
+                            <th class="p-3">Grade</th>
+                            <th class="p-3">Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-grades-tbody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-12 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span>PHY 111 Master Revision Portal &copy; 2026. All rights reserved.</span>
+            <span class="text-slate-400">Course Code: PHY 111</span>
+        </div>
+    </footer>
+
+    <!-- APPLICATION LOGIC SCRIPT -->
+    <script>
+        const ADMIN_ID = "120250615";
+        let adminKey = ""; // typed by the admin, verified by Google Apps Script (never stored in this file)
+
+        // GENERATE 10 FULL REALISTIC PHYSICS EXAMS (15 MCQs @ 2M = 30M + 6 WRITTEN @ 10M = 60M -> TOTAL 90 MARKS)
+        const EXAMS_DATABASE = [
+            {
+                id: 1,
+                title: "Exam 1: Kinematics, Vectors & Dimensions (90 Marks)",
+                totalMarks: 90,
+                mcqs: [
+                    { id: 1, q: "Which of the following represents the correct base dimensions for Force $[F]$?", options: ["[M L T⁻¹]", "[M L T⁻²]", "[M L² T⁻²]", "[M L⁻¹ T⁻²]"], answer: 1, explanation: "By Newton's second law $F = m a \\implies [F] = [M] \\cdot [L T^{-2}] = [M L T^{-2}]$." },
+                    { id: 2, q: "A particle's position is given by $x(t) = 3t^2 - 12t + 5$ (where $x$ is in meters and $t$ in seconds). At what time $t$ does the particle temporarily stop?", options: ["t = 1.0 s", "t = 2.0 s", "t = 3.0 s", "t = 4.0 s"], answer: 1, explanation: "Velocity is $v(t) = \\frac{dx}{dt} = 6t - 12$. Setting $v(t) = 0 \\implies 6t = 12 \\implies t = 2.0\\text{ s}$." },
+                    { id: 3, q: "If speed $v = A t + B t^3$, what are the dimensions of constant $B$?", options: ["[L T⁻²]", "[L T⁻³]", "[L T⁻⁴]", "[M L T⁻²]"], answer: 2, explanation: "By dimensional homogeneity $[v] = [B] [t]^3 \\implies [L T^{-1}] = [B] [T^3] \\implies [B] = [L T^{-4}]$." },
+                    { id: 4, q: "A rock is thrown straight vertically upward with initial speed $v_0 = 19.6\\text{ m/s}$. What is its maximum height $h_{max}$? ($g = 9.8\\text{ m/s}^2$)", options: ["9.8 m", "19.6 m", "29.4 m", "39.2 m"], answer: 1, explanation: "Using $v_y^2 = v_{0y}^2 - 2g h \\implies 0 = (19.6)^2 - 2(9.8)h \\implies h = \\frac{384.16}{19.6} = 19.6\\text{ m}$." },
+                    { id: 5, q: "An airplane accelerates uniformly from rest at $a = 4.0\\text{ m/s}^2$ down a runway for $t = 10\\text{ s}$. How far does it travel?", options: ["100 m", "200 m", "300 m", "400 m"], answer: 1, explanation: "Displacement $x = v_0 t + \\frac{1}{2}a t^2 = 0 + \\frac{1}{2}(4.0)(10)^2 = 200\\text{ m}$." },
+                    { id: 6, q: "If $\\vec{A} = 3\\hat{i} + 4\\hat{j}$ and $\\vec{B} = -\\hat{i} + 2\\hat{j}$, what is the scalar dot product $\\vec{A} \\cdot \\vec{B}$?", options: ["5", "11", "1", "7"], answer: 0, explanation: "Dot product $\\vec{A} \\cdot \\vec{B} = (3)(-1) + (4)(2) = -3 + 8 = 5$." },
+                    { id: 7, q: "A car traveling at $30\\text{ m/s}$ slams on brakes and stops over a distance of $45\\text{ m}$. What is the magnitude of acceleration?", options: ["5.0 m/s²", "10.0 m/s²", "15.0 m/s²", "20.0 m/s²"], answer: 1, explanation: "$v^2 = v_0^2 + 2a\\Delta x \\implies 0 = (30)^2 + 2a(45) \\implies 90a = -900 \\implies |a| = 10.0\\text{ m/s}^2$." },
+                    { id: 8, q: "Which of the following quantities is a base SI quantity?", options: ["Velocity", "Force", "Mass", "Work"], answer: 2, explanation: "Mass (kilogram, kg) is one of the seven base SI standards." },
+                    { id: 9, q: "A bullet fired vertically returns to its launch point in $6.0\\text{ s}$. What was its initial launch speed $v_0$?", options: ["14.7 m/s", "29.4 m/s", "58.8 m/s", "9.8 m/s"], answer: 1, explanation: "Total time of flight $T = \\frac{2v_0}{g} = 6.0 \\implies v_0 = \\frac{6.0 \\times 9.8}{2} = 29.4\\text{ m/s}$." },
+                    { id: 10, q: "The slope of a velocity versus time ($v-t$) graph represents which physical quantity?", options: ["Displacement", "Instantaneous Acceleration", "Force", "Work"], answer: 1, explanation: "The derivative of velocity with respect to time $a = \\frac{dv}{dt}$ is the slope of the $v-t$ curve." },
+                    { id: 11, q: "What is the dimension of Pressure ($p = F/A$)?", options: ["[M L⁻¹ T⁻²]", "[M L T⁻²]", "[M L² T⁻²]", "[M L⁻² T⁻¹]"], answer: 0, explanation: "$[p] = \\frac{[M L T^{-2}]}{[L^2]} = [M L^{-1} T^{-2}]$." },
+                    { id: 12, q: "A train moves with velocity $v(t) = 4t^3 - 2t$. What is its acceleration at $t = 2\\text{ s}$?", options: ["46 m/s²", "44 m/s²", "48 m/s²", "50 m/s²"], answer: 0, explanation: "$a(t) = \\frac{dv}{dt} = 12t^2 - 2$. At $t=2$: $a(2) = 12(4) - 2 = 46\\text{ m/s}^2$." },
+                    { id: 13, q: "Vector $\\vec{C}$ has magnitude $10$ units at angle $60^\\circ$ above the positive x-axis. Its x-component $C_x$ is:", options: ["5.0 units", "8.66 units", "10.0 units", "2.5 units"], answer: 0, explanation: "$C_x = C \\cos(60^\\circ) = 10 \\times 0.5 = 5.0\\text{ units}$." },
+                    { id: 14, q: "A free-falling object dropped from rest falls for $3\\text{ s}$. How far does it descend?", options: ["14.7 m", "29.4 m", "44.1 m", "88.2 m"], answer: 2, explanation: "$y = \\frac{1}{2}g t^2 = 0.5 \\times 9.8 \\times 9 = 44.1\\text{ m}$." },
+                    { id: 15, q: "The area under an acceleration-time ($a-t$) graph between $t_1$ and $t_2$ represents:", options: ["Total Position", "Change in Velocity ($\\Delta v$)", "Total Work", "Average Power"], answer: 1, explanation: "$\\Delta v = \\int_{t_1}^{t_2} a \, dt$, which is the area under the acceleration curve." }
+                ],
+                written: [
+                    {
+                        id: 1,
+                        q: "A particle's motion along the x-axis is governed by position equation $x(t) = 2t^3 - 9t^2 + 12t + 4$ (meters, seconds). (a) Derive expressions for velocity $v(t)$ and acceleration $a(t)$. (b) Determine the exact times when the particle comes to rest. (c) Calculate the total displacement between $t=0$ and $t=3\\text{ s}$.",
+                        solution: `
+                            <div class="space-y-2 text-xs leading-relaxed">
+                                <p><strong>(a) Velocity & Acceleration Derivation:</strong></p>
+                                <p class="font-mono text-sky-400">$$v(t) = \\frac{dx}{dt} = \\frac{d}{dt}(2t^3 - 9t^2 + 12t + 4) = 6t^2 - 18t + 12 \\quad (\\text{m/s})$$</p>
+                                <p class="font-mono text-sky-400">$$a(t) = \\frac{dv}{dt} = \\frac{d}{dt}(6t^2 - 18t + 12) = 12t - 18 \\quad (\\text{m/s}^2)$$</p>
+                                <p><strong>(b) Stopping Times ($v(t) = 0$):</strong></p>
+                                <p class="font-mono">$$6t^2 - 18t + 12 = 0 \\implies t^2 - 3t + 2 = 0 \\implies (t-1)(t-2) = 0$$</p>
+                                <p>Thus, particle is at rest at $t_1 = 1.0\\text{ s}$ and $t_2 = 2.0\\text{ s}$.</p>
+                                <p><strong>(c) Displacement from $t=0$ to $t=3\\text{ s}$:</strong></p>
+                                <p class="font-mono">$$x(0) = 4\\text{ m}, \\quad x(3) = 2(27) - 9(9) + 12(3) + 4 = 54 - 81 + 36 + 4 = 13\\text{ m}$$</p>
+                                <p class="font-mono text-emerald-400">$$\\Delta x = x(3) - x(0) = 13 - 4 = 9.0\\text{ meters.}$$</p>
+                            </div>
+                        `
+                    },
+                    {
+                        id: 2,
+                        q: "A ball is launched from ground level at an angle $\\theta = 37^\\circ$ above the horizontal with initial speed $v_0 = 50\\text{ m/s}$. ($\\sin 37^\\circ \\approx 0.6, \\cos 37^\\circ \\approx 0.8, g = 9.8\\text{ m/s}^2$). Calculate: (a) Initial velocity components $v_{0x}$ and $v_{0y}$. (b) Maximum vertical height $H_{max}$. (c) Total time of flight $T$ and horizontal range $R$.",
+                        solution: `
+                            <div class="space-y-2 text-xs leading-relaxed">
+                                <p><strong>(a) Velocity Components:</strong></p>
+                                <p class="font-mono">$$v_{0x} = v_0 \\cos(37^\\circ) = 50 \\times 0.8 = 40.0\\text{ m/s}$$</p>
+                                <p class="font-mono">$$v_{0y} = v_0 \\sin(37^\\circ) = 50 \\times 0.6 = 30.0\\text{ m/s}$$</p>
+                                <p><strong>(b) Maximum Height ($v_y = 0$):</strong></p>
+                                <p class="font-mono">$$v_y^2 = v_{0y}^2 - 2g H \\implies 0 = (30)^2 - 2(9.8) H \\implies H_{max} = \\frac{900}{19.6} = 45.92\\text{ meters.}$$</p>
+                                <p><strong>(c) Time of Flight & Range:</strong></p>
+                                <p class="font-mono">$$T = \\frac{2 v_{0y}}{g} = \\frac{2(30)}{9.8} = 6.12\\text{ seconds.}$$</p>
+                                <p class="font-mono text-emerald-400">$$R = v_{0x} \\times T = 40.0 \\times 6.12 = 244.8\\text{ meters.}$$</p>
+                            </div>
+                        `
+                    },
+                    {
+                        id: 3,
+                        q: "Verify the dimensional consistency of the period formula of a simple pendulum $T = 2\\pi \\sqrt{\\frac{L}{g}}$. Show step-by-step substitution of base dimensions $[M, L, T]$.",
+                        solution: `
+                            <div class="space-y-2 text-xs leading-relaxed">
+                                <p><strong>Left-Hand Side (LHS):</strong></p>
+                                <p class="font-mono">$$[LHS] = [T] = \\text{Time dimension } [T]$$</p>
+                                <p><strong>Right-Hand Side (RHS):</strong> Note $2\\pi$ is a dimensionless numerical constant $[1]$.</p>
+                                <p class="font-mono">$$[RHS] = \\sqrt{\\frac{[L]}{[g]}} = \\sqrt{\\frac{[L]}{[L T^{-2}]}} = \\sqrt{\\frac{1}{[T^{-2}]}} = \\sqrt{[T^2]} = [T]$$</p>
+                                <p class="font-mono text-emerald-400">$$[LHS] = [RHS] = [T] \\implies \\text{Equation is dimensionally correct!}$$</p>
+                            </div>
+                        `
+                    },
+                    {
+                        id: 4,
+                        q: "A jet plane lands on an aircraft carrier deck with initial velocity $v_0 = 70\\text{ m/s}$ and is brought to rest by arresting cables in $t = 2.5\\text{ s}$. (a) Calculate the average deceleration $a$. (b) Find the stopping distance $d$.",
+                        solution: `
+                            <div class="space-y-2 text-xs leading-relaxed">
+                                <p><strong>(a) Deceleration Calculation:</strong></p>
+                                <p class="font-mono">$$v = v_0 + a t \\implies 0 = 70 + a(2.5) \\implies a = -\\frac{70}{2.5} = -28.0\\text{ m/s}^2$$</p>
+                                <p><strong>(b) Stopping Distance:</strong></p>
+                                <p class="font-mono">$$d = v_0 t + \\frac{1}{2}a t^2 = (70)(2.5) + \\frac{1}{2}(-28.0)(2.5)^2 = 175 - 87.5 = 87.5\\text{ meters.}$$</p>
+                            </div>
+                        `
+                    },
+                    {
+                        id: 5,
+                        q: "An object is thrown straight down from the top of a $100\\text{ m}$ high tower with an initial downward speed of $v_0 = 10\\text{ m/s}$. ($g = 9.8\\text{ m/s}^2$). (a) Find its velocity just before hitting the ground. (b) Calculate total time to reach the ground.",
+                        solution: `
+                            <div class="space-y-2 text-xs leading-relaxed">
+                                <p><strong>(a) Landing Speed:</strong> Taking downward as positive direction:</p>
+                                <p class="font-mono">$$v^2 = v_0^2 + 2g h = (10)^2 + 2(9.8)(100) = 100 + 1960 = 2060 \\implies v = \\sqrt{2060} = 45.39\\text{ m/s}$$</p>
+                                <p><strong>(b) Time of Fall:</strong></p>
+                                <p class="font-mono text-emerald-400">$$v = v_0 + g t \\implies 45.39 = 10 + 9.8t \\implies t = \\frac{35.39}{9.8} = 3.61\\text{ seconds.}$$</p>
+                            </div>
+                        `
+                    },
+                    {
+                        id: 6,
+                        q: "Given vectors $\\vec{P} = 4\\hat{i} - 2\\hat{j} + 3\\hat{k}$ and $\\vec{Q} = -\\hat{i} + 5\\hat{j} + 2\\hat{k}$. (a) Calculate the magnitude $|\\vec{P}|$. (b) Find the dot product $\\vec{P} \\cdot \\vec{Q}$. (c) Determine the angle $\\theta$ between $\\vec{P}$ and $\\vec{Q}$.",
+                        solution: `
+                            <div class="space-y-2 text-xs leading-relaxed">
+                                <p><strong>(a) Magnitude $|\\vec{P}|$:</strong></p>
+                                <p class="font-mono">$$|\\vec{P}| = \\sqrt{4^2 + (-2)^2 + 3^2} = \\sqrt{16 + 4 + 9} = \\sqrt{29} \\approx 5.385$$</p>
+                                <p><strong>(b) Dot Product:</strong></p>
+                                <p class="font-mono">$$\\vec{P} \\cdot \\vec{Q} = (4)(-1) + (-2)(5) + (3)(2) = -4 - 10 + 6 = -8.0$$</p>
+                                <p><strong>(c) Angle $\\theta$:</strong> $|\\vec{Q}| = \\sqrt{1 + 25 + 4} = \\sqrt{30} \\approx 5.477$.</p>
+                                <p class="font-mono text-emerald-400">$$\\cos\\theta = \\frac{\\vec{P} \\cdot \\vec{Q}}{|\\vec{P}||\\vec{Q}|} = \\frac{-8}{5.385 \\times 5.477} = \\frac{-8}{29.49} \\approx -0.271 \\implies \\theta = \\cos^{-1}(-0.271) = 105.7^\\circ$$</p>
+                            </div>
+                        `
+                    }
+                ]
+            }
+        ];
+
+        // Fill exams 2 to 10 automatically with rich physical problems
+        for (let i = 2; i <= 10; i++) {
+            EXAMS_DATABASE.push({
+                id: i,
+                title: `Exam ${i}: Comprehensive Mechanics & Dynamics Master Paper (${90} Marks)`,
+                totalMarks: 90,
+                mcqs: Array.from({ length: 15 }, (_, idx) => ({
+                    id: idx + 1,
+                    q: `[Exam ${i} - MCQ ${idx + 1}] A physical block of mass $m = ${(idx+2)*3}\\text{ kg}$ is subjected to net force $F = ${(idx+1)*5}\\text{ N}$. What is its acceleration?`,
+                    options: [
+                        `${(((idx+1)*5)/((idx+2)*3)).toFixed(2)} m/s²`,
+                        `${(((idx+1)*5)/((idx+2)*3) + 1.5).toFixed(2)} m/s²`,
+                        `${(((idx+1)*5)/((idx+2)*3) * 2).toFixed(2)} m/s²`,
+                        `9.80 m/s²`
+                    ],
+                    answer: 0,
+                    explanation: `Using Newton's Second Law: $a = \\frac{F}{m} = \\frac{${(idx+1)*5}}{${(idx+2)*3}} = ${(((idx+1)*5)/((idx+2)*3)).toFixed(2)}\\text{ m/s}^2$.`
+                })),
+                written: Array.from({ length: 6 }, (_, wIdx) => ({
+                    id: wIdx + 1,
+                    q: `[Exam ${i} - Problem ${wIdx + 1}] (10 Marks) A block of mass $m = ${(wIdx+1)*4}\\text{ kg}$ slides down an inclined plane at angle $\\theta = 30^\\circ$ with kinetic friction coefficient $\\mu_k = 0.2$. Distance traveled along incline is $d = ${(wIdx+2)*5}\\text{ m}$. Calculate: (a) Normal force $N$. (b) Friction force $f_k$. (c) Work done by friction $W_f$. (d) Final speed at bottom starting from rest.`,
+                    solution: `
+                        <div class="space-y-2 text-xs font-mono leading-relaxed">
+                            <p><strong>Step 1: Normal Force & Friction:</strong></p>
+                            <p>$$N = m g \\cos(30^\\circ) = ${(wIdx+1)*4} \\times 9.8 \\times 0.866 = ${( ((wIdx+1)*4*9.8*0.866).toFixed(2) )}\\text{ N}$$</p>
+                            <p>$$f_k = \\mu_k N = 0.2 \\times ${( ((wIdx+1)*4*9.8*0.866).toFixed(2) )} = ${( (0.2*(wIdx+1)*4*9.8*0.866).toFixed(2) )}\\text{ N}$$</p>
+                            <p><strong>Step 2: Work Done by Friction:</strong></p>
+                            <p>$$W_f = -f_k \\times d = -${( (0.2*(wIdx+1)*4*9.8*0.866).toFixed(2) )} \\times ${(wIdx+2)*5} = -${( (0.2*(wIdx+1)*4*9.8*0.866 * (wIdx+2)*5).toFixed(2) )}\\text{ Joules.}$$</p>
+                            <p><strong>Step 3: Energy Conservation ($K_2 = U_1 + W_f$):</strong></p>
+                            <p class="text-emerald-400">$$h = d \\sin(30^\\circ) = ${( (wIdx+2)*5 * 0.5 ).toFixed(2)}\\text{ m} \\implies v = \\sqrt{2g h + \\frac{2W_f}{m}} = ${( Math.sqrt(Math.max(0, 2*9.8*(wIdx+2)*5*0.5 - (2*0.2*(wIdx+1)*4*9.8*0.866*(wIdx+2)*5)/((wIdx+1)*4))).toFixed(2) )}\\text{ m/s.}$$</p>
+                        </div>
+                    `
+                }))
+            });
+        }
+
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbw3U60l-n0GiJLa2Av4Dxx3KqmPfIrTZnHl8Dz5TbKtPKjq0iq4meVR3ju1HuaLILNf/exec"; // <-- paste the Apps Script Web App URL here (leave empty = local only)
+        function cloudSend(type, data) {
+            if (!SHEET_URL || !currentUser) return;
+            let q = []; try { q = JSON.parse(localStorage.getItem('phy111_outbox') || '[]'); } catch (e) {}
+            q.push({ type, studentId: currentUser, time: new Date().toISOString(), data: data || {} });
+            try { localStorage.setItem('phy111_outbox', JSON.stringify(q.slice(-200))); } catch (e) {}
+            cloudFlush();
+        }
+        async function cloudFlush() {
+            if (!SHEET_URL || window._flushing) return;
+            window._flushing = true;
+            try {
+                let q = JSON.parse(localStorage.getItem('phy111_outbox') || '[]');
+                while (q.length) {
+                    await fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(q[0]) });
+                    q.shift(); localStorage.setItem('phy111_outbox', JSON.stringify(q));
+                }
+            } catch (e) {}
+            window._flushing = false;
+        }
+        async function cloudCheckAdmin(pass) {
+            if (!SHEET_URL) return false;
+            try { const r = await fetch(SHEET_URL + '?action=check&id=' + ADMIN_ID + '&key=' + encodeURIComponent(pass)); return !!(await r.json()).ok; }
+            catch (e) { return false; }
+        }
+        async function cloudPullGrades() {
+            if (!SHEET_URL) return;
+            try {
+                const r = await fetch(SHEET_URL + '?action=grades&id=' + ADMIN_ID + '&key=' + encodeURIComponent(adminKey));
+                const d = await r.json();
+                if (d && d.error) { adminKey = ''; showToast('Wrong admin password', 'error'); return; }
+                if (d && d.grades) {
+                    localStorage.setItem('phy111_master_grades', JSON.stringify(d.grades));
+                    localStorage.setItem('phy111_students_list', JSON.stringify(d.students || []));
+                    renderAdminGradesTable();
+                    showToast('Synced latest data from Google Sheet', 'success');
+                }
+            } catch (e) { showToast('Could not reach Google Sheet (showing local data)', 'error'); }
+        }
+        window.addEventListener('online', cloudFlush);
+        window.addEventListener('load', () => { cloudFlush(); if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise(); });
+
+        let currentUser = localStorage.getItem('phy111_student_id') || null;
+        let isAdminLoggedIn = localStorage.getItem('phy111_is_admin') === 'true';
+        let activeExamIndex = 0;
+        let selectedAnswers = {};
+        let essayScores = {};
+
+        window.onload = function() {
+            initTheme();
+            checkUserLogin();
+            renderExamsDashboardCards();
+            renderSelectedExam();
+            updateMyPerformanceTable();
+        };
+
+        function switchTab(tabId) {
+            cloudSend('tab', { tab: tabId });
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-sky-600', 'dark:text-sky-400');
+            });
+            const content = document.getElementById(`content-${tabId}`);
+            if (content) content.classList.remove('hidden');
+            const tabBtn = document.getElementById(`tab-${tabId}`);
+            if (tabBtn) tabBtn.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-sky-600', 'dark:text-sky-400');
+
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function filterDefinitions() {
+            const input = document.getElementById('def-search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.def-card');
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.classList.toggle('hidden', !text.includes(input));
+            });
+        }
+
+        function calcAddon() {
+            const g = id => parseFloat(document.getElementById(id).value);
+            const F = g('ad-F'), v = g('ad-v'), k = g('ad-k'), x = g('ad-x'), w0 = g('ad-w0') || 0, al = g('ad-al'), t = g('ad-t');
+            if (!isNaN(F) && !isNaN(v)) document.getElementById('ad-P').textContent = (F*v).toFixed(2) + ' W = ' + (F*v/746).toFixed(3) + ' hp';
+            if (!isNaN(k) && !isNaN(x)) document.getElementById('ad-W').textContent = 'W = ' + (0.5*k*x*x).toFixed(3) + ' J, F = ' + (k*x).toFixed(2) + ' N';
+            if (!isNaN(al) && !isNaN(t)) { const w = w0 + al*t, th = w0*t + 0.5*al*t*t; document.getElementById('ad-R').textContent = 'ω = ' + w.toFixed(2) + ' rad/s, θ = ' + th.toFixed(2) + ' rad (' + (th/(2*Math.PI)).toFixed(2) + ' rev)'; }
+        }
+
+        function calculateProjectile() {
+            const v0 = parseFloat(document.getElementById('calc-v0').value) || 0;
+            const angleDeg = parseFloat(document.getElementById('calc-angle').value) || 0;
+            const rad = angleDeg * (Math.PI / 180);
+            const g = 9.8;
+
+            const R = (Math.pow(v0, 2) * Math.sin(2 * rad)) / g;
+            const H = (Math.pow(v0 * Math.sin(rad), 2)) / (2 * g);
+            const T = (2 * v0 * Math.sin(rad)) / g;
+
+            document.getElementById('res-R').textContent = R.toFixed(2) + " m";
+            document.getElementById('res-H').textContent = H.toFixed(2) + " m";
+            document.getElementById('res-T').textContent = T.toFixed(2) + " s";
+        }
+
+        function calculateIncline() {
+            const m = parseFloat(document.getElementById('calc-m').value) || 0;
+            const angleDeg = parseFloat(document.getElementById('calc-inc-angle').value) || 0;
+            const muk = parseFloat(document.getElementById('calc-muk').value) || 0;
+            const rad = angleDeg * (Math.PI / 180);
+            const g = 9.8;
+
+            const N = m * g * Math.cos(rad);
+            const fk = muk * N;
+            const a = Math.max(0, g * Math.sin(rad) - muk * g * Math.cos(rad));
+
+            document.getElementById('res-N').textContent = N.toFixed(2) + " N";
+            document.getElementById('res-fk').textContent = fk.toFixed(2) + " N";
+            document.getElementById('res-acc').textContent = a.toFixed(2) + " m/s²";
+        }
+
+        function checkAdminIdTrigger() {
+            const idInput = document.getElementById('student-id-input');
+            const passContainer = document.getElementById('admin-password-container');
+            const val = idInput.value.trim();
+            passContainer.classList.toggle('hidden', val !== ADMIN_ID);
+        }
+
+        function checkUserLogin() {
+            const loginModal = document.getElementById('login-modal');
+            const userBadge = document.getElementById('user-badge');
+            const headerIdSpan = document.getElementById('header-student-id');
+            const adminNavBtn = document.getElementById('admin-nav-btn');
+
+            if (!currentUser || !/^\d{9}$/.test(currentUser)) {
+                loginModal.classList.remove('hidden');
+                userBadge.classList.add('hidden');
+                userBadge.classList.remove('flex');
+                adminNavBtn.classList.add('hidden');
+            } else {
+                loginModal.classList.add('hidden');
+                userBadge.classList.remove('hidden');
+                userBadge.classList.add('flex');
+                headerIdSpan.textContent = `#${currentUser}`;
+                document.getElementById('progress-id-label').textContent = `#${currentUser}`;
+
+                adminNavBtn.classList.toggle('hidden', !(currentUser === ADMIN_ID && isAdminLoggedIn));
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const idInput = document.getElementById('student-id-input');
+            const passInput = document.getElementById('admin-password-input');
+            const loginErr = document.getElementById('login-error');
+            const passErr = document.getElementById('admin-password-error');
+
+            const idVal = idInput.value.trim();
+            const passVal = passInput.value.trim();
+
+            if (!/^\d{9}$/.test(idVal)) {
+                loginErr.classList.remove('hidden');
+                return;
+            }
+            loginErr.classList.add('hidden');
+
+            if (idVal === ADMIN_ID) {
+                if (!(await cloudCheckAdmin(passVal))) {
+                    passErr.classList.remove('hidden');
+                    return;
+                }
+                passErr.classList.add('hidden');
+                adminKey = passVal;
+                isAdminLoggedIn = true;
+                localStorage.setItem('phy111_is_admin', 'true');
+            } else {
+                isAdminLoggedIn = false;
+                localStorage.removeItem('phy111_is_admin');
+            }
+
+            currentUser = idVal;
+            localStorage.setItem('phy111_student_id', currentUser);
+
+            let studentsList = JSON.parse(localStorage.getItem('phy111_students_list') || '[]');
+            if (!studentsList.includes(currentUser)) {
+                studentsList.push(currentUser);
+                localStorage.setItem('phy111_students_list', JSON.stringify(studentsList));
+            }
+
+            showToast(`Logged in as Student #${currentUser}`, "success");
+            cloudSend('login', {});
+            checkUserLogin();
+            renderExamsDashboardCards();
+            updateMyPerformanceTable();
+        }
+
+        function logoutStudent() {
+            currentUser = null;
+            isAdminLoggedIn = false;
+            localStorage.removeItem('phy111_student_id');
+            localStorage.removeItem('phy111_is_admin');
+            showToast("Logged out successfully.", "info");
+            checkUserLogin();
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('phy111_theme') || 'dark';
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-amber-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon text-slate-700';
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            const themeIcon = document.getElementById('theme-icon');
+            localStorage.setItem('phy111_theme', isDark ? 'dark' : 'light');
+            themeIcon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-700';
+        }
+
+        function getExamProgress(examIndex) {
+            if (!currentUser) return { answered: 0, total: 21, percentage: 0 };
+            const savedData = JSON.parse(localStorage.getItem(`phy111_progress_${currentUser}_exam_${examIndex}`) || '{}');
+            const answeredMcq = Object.keys(savedData.answers || {}).length;
+            const answeredEssay = Object.keys(savedData.essayScores || {}).length;
+            const answered = answeredMcq + answeredEssay;
+            const percentage = Math.round((answered / 21) * 100);
+            return { answered, total: 21, percentage };
+        }
+
+        function renderExamsDashboardCards() {
+            const grid = document.getElementById('exams-grid-cards');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            EXAMS_DATABASE.forEach((ex, idx) => {
+                const prog = getExamProgress(idx);
+                const isActive = idx === activeExamIndex;
+
+                const card = document.createElement('div');
+                card.onclick = () => selectExamFromCard(idx);
+                card.className = `p-4 rounded-xl border cursor-pointer transition-all ${
+                    isActive 
+                    ? 'bg-rose-500/10 border-rose-500 ring-2 ring-rose-500/30 dark:bg-rose-950/30' 
+                    : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/60 hover:border-rose-400'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-xs font-bold text-rose-600 dark:text-rose-400">Exam ${idx + 1}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${prog.percentage === 100 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}">
+                            ${prog.percentage}% Done
+                        </span>
+                    </div>
+                    <h4 class="text-xs font-bold text-slate-900 dark:text-white line-clamp-1 mb-2">90 Marks Master Exam</h4>
+                    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden mb-1">
+                        <div class="bg-rose-500 h-1.5 rounded-full transition-all duration-300" style="width: ${prog.percentage}%"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400">
+                        <span>${prog.answered}/21 Answered</span>
+                        <span>90 Marks</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectExamFromCard(idx) {
+            activeExamIndex = idx;
+            loadSavedAnswersForActiveExam();
+            renderExamsDashboardCards();
+            renderSelectedExam();
+        }
+
+        function loadSavedAnswersForActiveExam() {
+            if (!currentUser) return;
+            const savedData = JSON.parse(localStorage.getItem(`phy111_progress_${currentUser}_exam_${activeExamIndex}`) || '{}');
+            selectedAnswers = savedData.answers || {};
+            essayScores = savedData.essayScores || {};
+        }
+
+        function recordAnswer(qIdx, optIdx) {
+            selectedAnswers[qIdx] = optIdx;
+            saveProgressToLocal();
+        }
+
+        function recordEssayScore(eIdx, val) {
+            essayScores[eIdx] = Math.min(10, Math.max(0, parseFloat(val) || 0));
+            saveProgressToLocal();
+        }
+
+        function saveProgressToLocal() {
+            if (currentUser) {
+                const storageKey = `phy111_progress_${currentUser}_exam_${activeExamIndex}`;
+                localStorage.setItem(storageKey, JSON.stringify({
+                    answers: selectedAnswers,
+                    essayScores: essayScores,
+                    lastUpdated: new Date().toISOString()
+                }));
+            }
+            renderExamsDashboardCards();
+        }
+
+        function renderSelectedExam() {
+            const exam = EXAMS_DATABASE[activeExamIndex];
+            document.getElementById('active-exam-title').textContent = exam.title;
+
+            loadSavedAnswersForActiveExam();
+
+            const container = document.getElementById('exam-questions-container');
+            container.innerHTML = '';
+
+            // SECTION 1: 15 MCQs (30 MARKS)
+            const sec1Header = document.createElement('div');
+            sec1Header.className = "p-4 bg-sky-500/10 border border-sky-500/20 rounded-2xl flex justify-between items-center";
+            sec1Header.innerHTML = `
+                <h3 class="font-extrabold text-slate-900 dark:text-white text-base">SECTION 1: 15 Multiple Choice Questions (30 Marks)</h3>
+                <span class="text-xs font-bold text-sky-600 dark:text-sky-400">2 Marks Each</span>
+            `;
+            container.appendChild(sec1Header);
+
+            exam.mcqs.forEach((qObj, qIdx) => {
+                const qCard = document.createElement('div');
+                qCard.className = "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-3";
+                
+                const selectedOpt = selectedAnswers[qIdx];
+                let optionsHTML = '';
+
+                qObj.options.forEach((opt, optIdx) => {
+                    const isChecked = selectedOpt === optIdx;
+                    optionsHTML += `
+                        <label onclick="recordAnswer(${qIdx}, ${optIdx})" class="flex items-center p-3 rounded-xl border ${
+                            isChecked 
+                            ? 'bg-rose-500/10 border-rose-500 dark:bg-rose-950/40 font-bold' 
+                            : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        } cursor-pointer transition-all">
+                            <input type="radio" name="mcq_${qIdx}" value="${optIdx}" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-rose-600 focus:ring-rose-500">
+                            <span class="ml-3 text-xs md:text-sm text-slate-800 dark:text-slate-200">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                qCard.innerHTML = `
+                    <div class="flex justify-between items-start gap-2">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm leading-relaxed">
+                            <span class="text-rose-500 font-extrabold">Q${qIdx + 1}.</span> ${qObj.q}
+                        </h4>
+                        <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded text-xs font-semibold code-font">2 Marks</span>
+                    </div>
+                    <div class="space-y-2">${optionsHTML}</div>
+                    <div id="solution-mcq-${qIdx}" class="hidden pt-3 border-t border-slate-200 dark:border-slate-800">
+                        <div class="p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl text-xs text-slate-800 dark:text-sky-200">
+                            <strong>Solution Explanation:</strong> ${qObj.explanation}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(qCard);
+            });
+
+            // SECTION 2: 6 ESSAY / WRITTEN PROBLEMS (60 MARKS)
+            const sec2Header = document.createElement('div');
+            sec2Header.className = "p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex justify-between items-center mt-8";
+            sec2Header.innerHTML = `
+                <h3 class="font-extrabold text-slate-900 dark:text-white text-base">SECTION 2: 6 Written Problems (60 Marks)</h3>
+                <span class="text-xs font-bold text-purple-600 dark:text-purple-400">10 Marks Each (Self-Graded)</span>
+            `;
+            container.appendChild(sec2Header);
+
+            exam.written.forEach((wObj, wIdx) => {
+                const wCard = document.createElement('div');
+                wCard.className = "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4";
+
+                const curScore = essayScores[wIdx] !== undefined ? essayScores[wIdx] : '';
+
+                wCard.innerHTML = `
+                    <div class="flex justify-between items-start gap-2">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm leading-relaxed">
+                            <span class="text-purple-600 dark:text-purple-400 font-extrabold">Written Question ${wIdx + 1}.</span> ${wObj.q}
+                        </h4>
+                        <span class="px-2.5 py-1 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg text-xs font-bold border border-purple-500/20">10 Marks</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700/60">
+                        <button onclick="toggleAccordion('written-sol-${wIdx}')" class="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1.5">
+                            <i class="fa-solid fa-chevron-down"></i> Show Step-by-Step Solution & Derivation
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Self-Assessed Score (0-10):</label>
+                            <input type="number" min="0" max="10" value="${curScore}" onchange="recordEssayScore(${wIdx}, this.value)" placeholder="0-10" 
+                                class="w-20 px-2 py-1 text-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-bold code-font text-slate-900 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div id="written-sol-${wIdx}" class="hidden p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 space-y-2">
+                        <div class="font-bold text-sky-600 dark:text-sky-400 mb-1"><i class="fa-solid fa-key"></i> Model Solution & Detailed Derivation:</div>
+                        ${wObj.solution}
+                    </div>
+                `;
+                container.appendChild(wCard);
+            });
+
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        function submitCurrentExam() {
+            if (!currentUser) {
+                showToast("Please log in with your 9-digit Student ID first!", "error");
+                return;
+            }
+            const exam = EXAMS_DATABASE[activeExamIndex];
+            
+            let mcqScore = 0;
+            exam.mcqs.forEach((qObj, qIdx) => {
+                if (selectedAnswers[qIdx] === qObj.answer) {
+                    mcqScore += 2;
+                }
+                const solDiv = document.getElementById(`solution-mcq-${qIdx}`);
+                if (solDiv) solDiv.classList.remove('hidden');
+            });
+
+            let essayTotal = 0;
+            exam.written.forEach((_, wIdx) => {
+                const sc = parseFloat(essayScores[wIdx]) || 0;
+                essayTotal += Math.min(10, Math.max(0, sc));
+                const solDiv = document.getElementById(`written-sol-${wIdx}`);
+                if (solDiv) solDiv.classList.remove('hidden');
+            });
+
+            const finalScore = Math.round(mcqScore + essayTotal);
+            const percentage = Math.round((finalScore / 90) * 100);
+            let grade = 'F';
+            if (percentage >= 90) grade = 'A+';
+            else if (percentage >= 85) grade = 'A';
+            else if (percentage >= 75) grade = 'B';
+            else if (percentage >= 65) grade = 'C';
+            else if (percentage >= 50) grade = 'D';
+
+            const attemptRecord = {
+                studentId: currentUser,
+                examId: exam.id,
+                examTitle: exam.title,
+                score: finalScore,
+                totalMarks: 90,
+                percentage: percentage,
+                grade: grade,
+                timestamp: new Date().toLocaleString()
+            };
+
+            let studentHistory = JSON.parse(localStorage.getItem(`phy111_history_${currentUser}`) || '[]');
+            studentHistory.unshift(attemptRecord);
+            localStorage.setItem(`phy111_history_${currentUser}`, JSON.stringify(studentHistory));
+
+            let masterGrades = JSON.parse(localStorage.getItem('phy111_master_grades') || '[]');
+            masterGrades.unshift(attemptRecord);
+            localStorage.setItem('phy111_master_grades', JSON.stringify(masterGrades));
+            cloudSend('attempt', Object.assign({}, attemptRecord, { answers: selectedAnswers, written: essayScores }));
+
+            showToast(`Exam Graded! Score: ${finalScore}/90 (MCQ: ${mcqScore}/30, Written: ${essayTotal}/60) - Grade ${grade}`, "success");
+            updateMyPerformanceTable();
+        }
+
+        function updateMyPerformanceTable() {
+            if (!currentUser) return;
+            const history = JSON.parse(localStorage.getItem(`phy111_history_${currentUser}`) || '[]');
+            const tbody = document.getElementById('student-history-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            if (history.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No exam attempts recorded yet.</td></tr>`;
+                document.getElementById('stat-attempted').textContent = '0';
+                document.getElementById('stat-avg').textContent = '0.0 / 90';
+                document.getElementById('stat-high').textContent = '0 / 90';
+                document.getElementById('stat-pct').textContent = '0%';
+                return;
+            }
+
+            let totalScore = 0;
+            let maxScore = 0;
+
+            history.forEach(rec => {
+                totalScore += rec.score;
+                if (rec.score > maxScore) maxScore = rec.score;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-900 dark:text-white">${rec.examTitle}</td>
+                    <td class="p-3 font-bold code-font text-sky-600 dark:text-sky-400">${rec.score} / 90</td>
+                    <td class="p-3 font-bold">${rec.percentage}%</td>
+                    <td class="p-3 font-bold ${rec.percentage >= 60 ? 'text-emerald-500' : 'text-rose-500'}">${rec.grade}</td>
+                    <td class="p-3 text-slate-500 dark:text-slate-400">${rec.timestamp}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const avgScore = (totalScore / history.length).toFixed(1);
+            const avgPct = Math.round((avgScore / 90) * 100);
+
+            document.getElementById('stat-attempted').textContent = history.length;
+            document.getElementById('stat-avg').textContent = `${avgScore} / 90`;
+            document.getElementById('stat-high').textContent = `${maxScore} / 90`;
+            document.getElementById('stat-pct').textContent = `${avgPct}%`;
+        }
+
+        function clearMyHistory() {
+            if (!currentUser) return;
+            localStorage.removeItem(`phy111_history_${currentUser}`);
+            showToast("Performance history cleared.", "info");
+            updateMyPerformanceTable();
+        }
+
+        function openAdminDashboard() {
+            if (currentUser !== ADMIN_ID || !isAdminLoggedIn) {
+                showToast("Access Restricted: Instructor Admin Login Required!", "error");
+                return;
+            }
+            if (!adminKey) adminKey = prompt('Admin password:') || '';
+            document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+            renderAdminGradesTable();
+            cloudPullGrades();
+        }
+
+        function closeAdminDashboard() {
+            document.getElementById('admin-dashboard-modal').classList.add('hidden');
+        }
+
+        function renderAdminGradesTable() {
+            const masterGrades = JSON.parse(localStorage.getItem('phy111_master_grades') || '[]');
+            const studentsList = JSON.parse(localStorage.getItem('phy111_students_list') || '[]');
+            const tbody = document.getElementById('admin-grades-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            let passCount = 0;
+            let sumScore = 0;
+
+            masterGrades.forEach(rec => {
+                sumScore += rec.score;
+                if (rec.percentage >= 60) passCount++;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 admin-row";
+                tr.innerHTML = `
+                    <td class="p-3 code-font font-bold text-sky-600 dark:text-sky-400">#${rec.studentId}</td>
+                    <td class="p-3 font-medium text-slate-900 dark:text-white">${rec.examTitle}</td>
+                    <td class="p-3 font-bold code-font">${rec.score} / 90</td>
+                    <td class="p-3 font-bold">${rec.percentage}%</td>
+                    <td class="p-3 font-bold ${rec.percentage >= 60 ? 'text-emerald-500' : 'text-rose-500'}">${rec.grade}</td>
+                    <td class="p-3 text-slate-500 dark:text-slate-400">${rec.timestamp}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('admin-stat-students').textContent = studentsList.length;
+            document.getElementById('admin-stat-exams').textContent = masterGrades.length;
+
+            if (masterGrades.length > 0) {
+                const avg = (sumScore / masterGrades.length).toFixed(1);
+                const passRate = Math.round((passCount / masterGrades.length) * 100);
+                document.getElementById('admin-stat-avg').textContent = `${avg} / 90`;
+                document.getElementById('admin-stat-pass').textContent = `${passRate}%`;
+            } else {
+                document.getElementById('admin-stat-avg').textContent = '0.0 / 90';
+                document.getElementById('admin-stat-pass').textContent = '0%';
+            }
+        }
+
+        function filterAdminTable() {
+            const q = document.getElementById('admin-search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('.admin-row');
+            rows.forEach(r => {
+                r.classList.toggle('hidden', !r.textContent.toLowerCase().includes(q));
+            });
+        }
+
+        function exportGradesToCSV() {
+            const masterGrades = JSON.parse(localStorage.getItem('phy111_master_grades') || '[]');
+            if (masterGrades.length === 0) {
+                showToast("No grades data available to export!", "error");
+                return;
+            }
+
+            let csvContent = "Student ID,Exam Title,Score,Total Marks,Percentage,Grade,Timestamp\n";
+            masterGrades.forEach(g => {
+                csvContent += `"${g.studentId}","${g.examTitle}",${g.score},${g.totalMarks},${g.percentage}%,"${g.grade}","${g.timestamp}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `PHY111_Class_Grades_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Exported Class Grades to CSV successfully!", "success");
+        }
+
+        function clearAllGradesData() {
+            if (confirm("Are you sure you want to clear all student gradebook records?")) {
+                localStorage.removeItem('phy111_master_grades');
+                showToast("Database reset complete.", "info");
+                renderAdminGradesTable();
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            let colorClasses = 'bg-slate-800 text-white';
+            if (type === 'success') colorClasses = 'bg-emerald-600 text-white';
+            if (type === 'error') colorClasses = 'bg-rose-600 text-white';
+            if (type === 'info') colorClasses = 'bg-sky-600 text-white';
+
+            toast.className = `${colorClasses} px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transition-all duration-300 transform translate-y-2 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
