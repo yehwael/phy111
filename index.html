@@ -679,6 +679,29 @@
                 </div>
             </div>
 
+            <!-- MCQ Results Table (Section 1 only, out of 30) -->
+            <div class="bg-white dark:bg-slate-900 border border-sky-500/30 rounded-2xl overflow-hidden shadow-sm">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white flex justify-between items-center">
+                    <span><i class="fa-solid fa-list-check text-sky-500 mr-1"></i> MCQ Results (Section 1 &mdash; out of 30)</span>
+                    <span class="text-[11px] font-normal text-slate-500">Appears as soon as you submit Section 1</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs md:text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800">
+                                <th class="p-3">Exam Name</th>
+                                <th class="p-3">MCQ Score (30)</th>
+                                <th class="p-3">Percentage</th>
+                                <th class="p-3">Date &amp; Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-mcq-tbody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- History Table -->
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white flex justify-between items-center">
@@ -709,13 +732,13 @@
     </main>
 
     <!-- 3. HIDDEN ADMIN GRADES DASHBOARD MODAL -->
-    <div id="admin-dashboard-modal" class="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 max-w-5xl w-full shadow-2xl my-8 relative">
+    <div id="admin-dashboard-modal" class="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/90 backdrop-blur-md hidden flex items-start justify-center p-2 md:p-3 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-5 max-w-7xl w-full shadow-2xl my-2 relative">
             <button onclick="closeAdminDashboard()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white text-lg">
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-3 pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold border border-amber-500/20">INSTRUCTOR PORTAL</span>
@@ -735,7 +758,7 @@
             </div>
 
             <!-- Admin Overview Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                 <div class="bg-slate-50 dark:bg-slate-800/70 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
                     <span class="text-xs text-slate-500 uppercase font-bold">Total Students</span>
                     <div id="admin-stat-students" class="text-2xl font-black text-slate-900 dark:text-white mt-1">0</div>
@@ -755,7 +778,7 @@
             </div>
 
             <!-- Separate MCQ / Written stats -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
                 <div class="bg-sky-500/5 p-4 rounded-xl border border-sky-500/30">
                     <span class="text-xs text-sky-600 dark:text-sky-400 uppercase font-bold">Finished MCQ</span>
                     <div id="admin-stat-mcq-done" class="text-2xl font-black text-sky-500 mt-1">0</div>
@@ -789,7 +812,7 @@
                 </div>
             </div>
 
-            <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-96 overflow-y-auto">
+            <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-[45vh] overflow-y-auto">
                 <table class="w-full text-left border-collapse text-xs md:text-sm">
                     <thead class="sticky top-0 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
                         <tr>
@@ -822,7 +845,7 @@
     <!-- APPLICATION LOGIC SCRIPT -->
     <script>
         const ADMIN_ID = "120250615";
-        let adminKey = ""; // typed by the admin, verified by Google Apps Script (never stored in this file)
+        let adminKey = localStorage.getItem('phy111_admin_key') || ""; // typed once by the admin, verified by Google Apps Script (never stored in this file)
 
         // GENERATE 10 FULL REALISTIC PHYSICS EXAMS (15 MCQs @ 2M = 30M + 6 WRITTEN @ 10M = 60M -> TOTAL 90 MARKS)
         const EXAMS_DATABASE = [
@@ -1251,7 +1274,7 @@
             try {
                 const r = await fetch(SHEET_URL + '?action=grades&id=' + ADMIN_ID + '&key=' + encodeURIComponent(adminKey));
                 const d = await r.json();
-                if (d && d.error) { adminKey = ''; showToast('Wrong admin password', 'error'); return; }
+                if (d && d.error) { adminKey = ''; localStorage.removeItem('phy111_admin_key'); showToast('Wrong admin password', 'error'); return; }
                 if (d && d.grades) {
                     localStorage.setItem('phy111_master_grades', JSON.stringify(d.grades));
                     localStorage.setItem('phy111_students_list', JSON.stringify(d.students || []));
@@ -1395,6 +1418,7 @@
                 }
                 passErr.classList.add('hidden');
                 adminKey = passVal;
+                localStorage.setItem('phy111_admin_key', passVal);
                 isAdminLoggedIn = true;
                 localStorage.setItem('phy111_is_admin', 'true');
             } else {
@@ -1424,6 +1448,8 @@
             isAdminLoggedIn = false;
             localStorage.removeItem('phy111_student_id');
             localStorage.removeItem('phy111_is_admin');
+            localStorage.removeItem('phy111_admin_key');
+            adminKey = '';
             showToast("Logged out successfully.", "info");
             checkUserLogin();
         }
@@ -1560,11 +1586,51 @@
                 return;
             }
             mcqDone = true; saveProgressToLocal();
+            saveMcqRecord(exam, mcqScore(exam));
             cloudSend('mcq_submit', { examTitle: exam.title, mcq: mcqScore(exam) });
             cloudSend('mcq_result', { examId: exam.id, examTitle: exam.title, section: 'MCQ', score: mcqScore(exam), totalMarks: 30, percentage: Math.round(mcqScore(exam) / 30 * 100), answers: selectedAnswers });
             renderSelectedExam();
+            updateMyPerformanceTable();
+            showToast(`Section 1 result: ${mcqScore(exam)} / 30 (saved in My Performance)`, "success");
             const b = document.getElementById('mcq-result-banner');
             if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // MCQ-only result (out of 30), kept per student so it shows in My Performance right after Section 1
+        function saveMcqRecord(exam, mcq) {
+            if (!currentUser) return;
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem(`phy111_mcq_history_${currentUser}`) || '[]'); } catch (e) {}
+            list = list.filter(r => r.examId !== exam.id);
+            list.unshift({ examId: exam.id, examTitle: exam.title, mcq: mcq, percentage: Math.round(mcq / 30 * 100), timestamp: new Date().toLocaleString() });
+            localStorage.setItem(`phy111_mcq_history_${currentUser}`, JSON.stringify(list));
+        }
+
+        function renderMyMcqTable() {
+            const tb = document.getElementById('student-mcq-tbody');
+            if (!tb || !currentUser) return;
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem(`phy111_mcq_history_${currentUser}`) || '[]'); } catch (e) {}
+            // Exam 1 questions are unchanged, so an MCQ already submitted there before this update can be recovered from saved progress
+            if (!list.some(r => r.examId === EXAMS_DATABASE[0].id)) {
+                try {
+                    const d = JSON.parse(localStorage.getItem(`phy111_progress_${currentUser}_exam_0`) || '{}');
+                    if (d.mcqDone && d.answers) {
+                        const ex = EXAMS_DATABASE[0];
+                        const m = ex.mcqs.reduce((s, q, i) => s + (d.answers[i] === q.answer ? 2 : 0), 0);
+                        list.push({ examId: ex.id, examTitle: ex.title, mcq: m, percentage: Math.round(m / 30 * 100), timestamp: d.lastUpdated ? new Date(d.lastUpdated).toLocaleString() : '-' });
+                        localStorage.setItem(`phy111_mcq_history_${currentUser}`, JSON.stringify(list));
+                    }
+                } catch (e) {}
+            }
+            list.sort((a, b) => a.examId - b.examId);
+            tb.innerHTML = list.length
+                ? list.map(r => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <td class="p-3 font-semibold text-slate-900 dark:text-white">${r.examTitle}</td>
+                    <td class="p-3 font-bold code-font text-sky-600 dark:text-sky-400">${r.mcq} / 30</td>
+                    <td class="p-3 font-bold">${r.percentage}%</td>
+                    <td class="p-3 text-slate-500 dark:text-slate-400">${r.timestamp}</td></tr>`).join('')
+                : `<tr><td colspan="4" class="p-4 text-center text-slate-400">No MCQ sections submitted yet.</td></tr>`;
         }
 
         function finishExam() {
@@ -1716,6 +1782,7 @@
         
 function updateMyPerformanceTable() {
             if (!currentUser) return;
+            renderMyMcqTable();
             const history = JSON.parse(localStorage.getItem(`phy111_history_${currentUser}`) || '[]');
             const tbody = document.getElementById('student-history-tbody');
             if (!tbody) return;
@@ -1763,6 +1830,7 @@ function updateMyPerformanceTable() {
         function clearMyHistory() {
             if (!currentUser) return;
             localStorage.removeItem(`phy111_history_${currentUser}`);
+            localStorage.removeItem(`phy111_mcq_history_${currentUser}`);
             showToast("Performance history cleared.", "info");
             updateMyPerformanceTable();
         }
@@ -1772,7 +1840,10 @@ function updateMyPerformanceTable() {
                 showToast("Access Restricted: Instructor Admin Login Required!", "error");
                 return;
             }
-            if (!adminKey) adminKey = prompt('Admin password:') || '';
+            if (!adminKey) {
+                adminKey = prompt('Admin password:') || '';
+                if (adminKey) localStorage.setItem('phy111_admin_key', adminKey);
+            }
             document.getElementById('admin-dashboard-modal').classList.remove('hidden');
             renderAdminGradesTable();
             cloudPullGrades();
